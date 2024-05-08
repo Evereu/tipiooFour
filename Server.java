@@ -13,10 +13,10 @@ import java.util.*;
 
 
 public class Server {
-    static Map<String, List<String>> clientTopics = new HashMap<>();
+    static Map<String, HashSet<String>> clientTopics = new HashMap<>();
     static {
 
-        List<String> topcList = new ArrayList<>();
+        HashSet<String> topcList = new HashSet<>();
         topcList.add("Sport");
         topcList.add("Polityka");
         clientTopics.put("client15", topcList);
@@ -215,15 +215,16 @@ public class Server {
 
                 List<String> clientTopicList = new ArrayList<>();
 
+                //TODO DODAWANIE NOWEGO KILENTA, ODKOMENTOWAĆ PÓŹNIEJ
 
-                if(!clientTopics.containsKey(msg[1])){
-                    clientTopics.put(msg[1], clientTopicList);
-                    System.out.println("dodano nowego klienta");
-                }
-
-                for (String entry : clientTopics.keySet()) {
-                    System.out.println("Aktualni klienci: " + entry);
-                }
+//                if(!clientTopics.containsKey(msg[1])){
+//                    clientTopics.put(msg[1], clientTopicList);
+//                    System.out.println("dodano nowego klienta");
+//                }
+//
+//                for (String entry : clientTopics.keySet()) {
+//                    System.out.println("Aktualni klienci: " + entry);
+//                }
 
                 if(msg[2].equals("getexistingtopics")){
 
@@ -259,9 +260,9 @@ public class Server {
                     }
 
 
-                    for (Map.Entry<String, List<String>> entry : clientTopics.entrySet()) {
+                    for (Map.Entry<String, HashSet<String>> entry : clientTopics.entrySet()) {
                         String clientId = entry.getKey();
-                        List<String> topics = entry.getValue();
+                        HashSet<String> topics = entry.getValue();
                         System.out.println("Klient: " + clientId);
                         System.out.println("Tematy:");
                         for (String topic : topics) {
@@ -280,9 +281,9 @@ public class Server {
 
                     System.out.println("Przed usunięciem");
 
-                    for (Map.Entry<String, List<String>> entry : clientTopics.entrySet()) {
+                    for (Map.Entry<String, HashSet<String>> entry : clientTopics.entrySet()) {
                         String clientId = entry.getKey();
-                        List<String> topics = entry.getValue();
+                        HashSet<String> topics = entry.getValue();
                         System.out.println("Klient: " + clientId);
                         System.out.println("Tematy:");
                         for (String topic : topics) {
@@ -294,9 +295,9 @@ public class Server {
                     System.out.println("Po usunięciu");
 
 
-                    for (Map.Entry<String, List<String>> entry : clientTopics.entrySet()) {
+                    for (Map.Entry<String, HashSet<String>> entry : clientTopics.entrySet()) {
                         entry.getValue().remove(msg[3]);
-                        List<String> topics = entry.getValue();
+                        HashSet<String> topics = entry.getValue();
                         for (String topic : topics) {
                             System.out.println(topic);
                         }
@@ -312,34 +313,48 @@ public class Server {
                     System.out.println("gettopicnews");
 
 
-                        System.out.println("Wiadomości dla tematu: " + msg[3]);
+                    StringBuilder stringBuilder = new StringBuilder();
+
+                    if(clientTopics.containsKey(msg[1])) {
                         for (String news : topicNews.get(msg[3])) {
+                            stringBuilder.append(news).append(" ");
                             System.out.println("- " + news);
                         }
 
+                        String listaTopicowString = stringBuilder.toString().trim();
+                        System.out.println("Wysyłam topici");
 
-                    sc.write(charset.encode(CharBuffer.wrap("newsy wysłane")));
+                        sc.write(charset.encode(CharBuffer.wrap(listaTopicowString)));
+
+                    }else {
+                        sc.write(charset.encode(CharBuffer.wrap("none")));
+                    }
 
                     sc.close();
                     sc.socket().close();
 
                 } else if (msg[2].equals("getclienttopics")) {
 
+
                     StringBuilder stringBuilder = new StringBuilder();
 
-                    for (String topic : clientTopics.get(msg[1])) {
-                        stringBuilder.append(topic).append(" ");
-                        System.out.println("- " + topic);
+                    if(clientTopics.containsKey(msg[1])) {
+                        for (String topic : clientTopics.get(msg[1])) {
+                            stringBuilder.append(topic).append(" ");
+                            System.out.println("- " + topic);
+                        }
+
+                        String listaTopicowString = stringBuilder.toString().trim();
+                        System.out.println("Wysyłam topici");
+
+                        sc.write(charset.encode(CharBuffer.wrap(listaTopicowString)));
+
+                    }else {
+                        sc.write(charset.encode(CharBuffer.wrap("none")));
                     }
-
-                    String listaTopicowString = stringBuilder.toString().trim();
-                    System.out.println("Wysyłam topici");
-
-                    sc.write(charset.encode(CharBuffer.wrap(listaTopicowString)));
 
                     sc.close();
                     sc.socket().close();
-
                 }
             }
 

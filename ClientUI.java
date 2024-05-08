@@ -23,8 +23,7 @@ public class ClientUI {
         TextArea textArea = new TextArea();
 
 
-        //Wyświetlanie topiców w dropdown
-        List<String> existingTopics = client.getExistingTopicsFromServer("abc");
+        List<String> existingTopics = client.getExistingTopicsFromServer("client15");
 
         for (String topic : existingTopics) {
 
@@ -32,23 +31,75 @@ public class ClientUI {
 
         }
 
+        List<String> clientTopics = client.getClientTopics("client15");
+
+        for (String topic : clientTopics) {
+
+            clientTopicsDropdown.getItems().addAll(topic);
+
+        }
+
 
         existingTopicsDropdown.setPromptText("Istniejące topici");
 
-        Button button1 = new Button("Pokaż aktualne topici");
-        Button button2 = new Button("Przycisk 2");
+        clientTopicsDropdown.setPromptText("Topici clienta");
+
+        Button button1 = new Button("xxx");
+        Button showTopicNews = new Button("showTopicNews");
+
+        Button subscribe = new Button("subscribe");
+        Button unsubscribe = new Button("unsubscribe");
 
         textArea.setEditable(false);
 
-        GridPane root = new GridPane();
-        root.setPadding(new Insets(10));
-        root.setHgap(10);
-        root.setVgap(10);
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(20, 20, 20, 20));
+        gridPane.setVgap(10);
+        gridPane.setHgap(10);
 
-        root.add(existingTopicsDropdown, 0, 0, 2, 1);
-        root.add(button1, 0, 1);
-        root.add(button2, 1, 1);
-        root.add(textArea, 0, 2, 2, 1);
+        textArea.setPrefSize(600, 400);
+
+        gridPane.add(existingTopicsDropdown, 1, 0, 2, 1);
+        gridPane.add(clientTopicsDropdown, 2, 0);
+        gridPane.add(button1, 0, 1);
+        gridPane.add(showTopicNews, 1, 1);
+        gridPane.add(subscribe, 2, 1);
+        gridPane.add(unsubscribe, 3, 1);
+
+        gridPane.add(textArea, 0, 2, 2, 1);
+
+
+        subscribe.setOnAction(actionEvent -> {
+
+            client.subscribeTopic(existingTopicsDropdown.getValue(), "client15");
+
+                clientTopicsDropdown.getItems().clear();
+
+            List<String> cclientTopics = client.getClientTopics("client15");
+
+
+            for (String topic : cclientTopics) {
+
+                clientTopicsDropdown.getItems().addAll(topic);
+
+            }
+
+        });
+
+        unsubscribe.setOnAction(actionEvent -> {
+
+            client.unSubscribeTopic(clientTopicsDropdown.getValue(),"client15");
+
+            clientTopicsDropdown.getItems().clear();
+
+            List<String> cclientTopics = client.getClientTopics("client15");
+
+            for (String topic : cclientTopics) {
+
+                clientTopicsDropdown.getItems().addAll(topic);
+
+            }
+        });
 
 
 
@@ -56,16 +107,22 @@ public class ClientUI {
 
             textArea.appendText(existingTopicsDropdown.getValue());
 
-            client.getClientTopics("client15");
 
         });
 
-        button2.setOnAction(event -> {
-            textArea.appendText("Kliknięto przycisk 2\n");
+        showTopicNews.setOnAction(event -> {
+
+            textArea.clear();
+
+            List<String> newsResult =  client.getTopicNews(clientTopicsDropdown.getValue(), "client15");
+
+            for (String news : newsResult) {
+                textArea.appendText(news + "\n");
+            }
         });
 
 
-        Scene scene = new Scene(root, 600, 500);
+        Scene scene = new Scene(gridPane, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Client s24149");
         primaryStage.show();

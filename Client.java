@@ -97,13 +97,16 @@ public class Client extends Application {
             clientSocket.configureBlocking(false);
             clientSocket.write(charset.encode(CharBuffer.wrap("Client:" + clientName + ":" + commandType + "\n")));
 
-            String[] serverResponse = readFromServer(clientSocket).split(" ");
+            String sss = readFromServer(clientSocket);
 
-            System.out.println("jestem tutaj");
+            if(!sss.equals("none")){
 
-            for (String topic : serverResponse) {
-                clientTopicsToReturn.add(topic);
-                System.out.println(topic);
+                String[] serverResponse = sss.split(" ");
+
+                for (String topic : serverResponse) {
+                    clientTopicsToReturn.add(topic);
+                    System.out.println(topic);
+                }
             }
 
             clientSocket.close();
@@ -116,9 +119,11 @@ public class Client extends Application {
     }
 
 
-    public static void getTopicNews(String topicName, String clientName){
+    public List<String> getTopicNews(String topicName, String clientName){
 
         String commandType = "gettopicnews";
+        List<String> clientNewsToReturn = new ArrayList<>();
+
 
         try {
             Charset charset = StandardCharsets.UTF_8;
@@ -126,9 +131,19 @@ public class Client extends Application {
             clientSocket.configureBlocking(false);
             clientSocket.write(charset.encode(CharBuffer.wrap("Client:" + clientName + ":" + commandType + ":" + topicName + "\n")));
 
-            String serverResponse = readFromServer(clientSocket);
 
-            System.out.println(serverResponse);
+            String sss = readFromServer(clientSocket);
+
+            if(!sss.equals("none")){
+
+                String[] serverResponse = sss.split(" ");
+
+                for (String topic : serverResponse) {
+                    clientNewsToReturn.add(topic);
+                    System.out.println(topic);
+                }
+            }
+
 
             clientSocket.close();
             clientSocket.socket().close();
@@ -136,6 +151,7 @@ public class Client extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return clientNewsToReturn;
     }
 
 
@@ -143,7 +159,7 @@ public class Client extends Application {
 
 
 
-    public static void subscribeTopic(String topicName, String clientName) {
+    public void subscribeTopic(String topicName, String clientName) {
         String commandType = "subscribetopic";
 
         try {
@@ -164,7 +180,7 @@ public class Client extends Application {
         }
     }
 
-    public static void unSubscribeTopic(String topicName, String clientName) {
+    public void unSubscribeTopic(String topicName, String clientName) {
 
         String commandType = "unsubscribetopic";
 
