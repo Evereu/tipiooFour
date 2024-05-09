@@ -16,21 +16,23 @@ import java.util.Scanner;
 
 public class Client extends Application {
 
-    static List<String> clientTopics = new ArrayList<>();
+
+
+
 
     public static void main(String[] args) throws IOException {
 
+
         launch(args);
 
-        Random random = new Random();
-        int clientNumber = random.nextInt(100) + 1;
 
-        System.out.println("Client number: " + clientNumber);
 
 //        while (true) {
 //            clientOptions(clientNumber);
 //        }
     }
+
+
 
 //    public static void clientOptions(int clientNumber) {
 //
@@ -99,7 +101,7 @@ public class Client extends Application {
 
             String sss = readFromServer(clientSocket);
 
-            if(!sss.equals("none")){
+            if(sss != null && !sss.equals("none")){
 
                 String[] serverResponse = sss.split(" ");
 
@@ -134,7 +136,7 @@ public class Client extends Application {
 
             String sss = readFromServer(clientSocket);
 
-            if(!sss.equals("none")){
+            if(sss != null && !sss.equals("none")){
 
                 String[] serverResponse = sss.split(" ");
 
@@ -143,6 +145,7 @@ public class Client extends Application {
                     System.out.println(topic);
                 }
             }
+
 
 
             clientSocket.close();
@@ -170,7 +173,7 @@ public class Client extends Application {
 
             String serverResponse = readFromServer(clientSocket);
 
-            System.out.println(serverResponse);
+            System.out.println("subscribetopic client: "+serverResponse);
 
             clientSocket.close();
             clientSocket.socket().close();
@@ -207,14 +210,22 @@ public class Client extends Application {
             clientSocket.configureBlocking(false);
             clientSocket.write(charset.encode(CharBuffer.wrap("Client:" + clientName + ":" + commandType + "\n")));
 
-            String[] serverResponse = readFromServer(clientSocket).split(" ");
+            String sss = readFromServer(clientSocket);
 
-            System.out.println("jestem tutaj");
 
-            for (String topic : serverResponse) {
-                existingTopicsToReturn.add(topic);
-                System.out.println(topic);
+            if(!sss.equals("none")){
+
+                String[] serverResponse = sss.split(" ");
+
+                System.out.println("jestem tutaj");
+
+                for (String topic : serverResponse) {
+                    existingTopicsToReturn.add(topic);
+                    System.out.println(topic);
+                }
             }
+
+
 
             clientSocket.close();
             clientSocket.socket().close();

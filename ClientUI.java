@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.Random;
 
 public class ClientUI {
 
@@ -17,13 +18,20 @@ public class ClientUI {
     public void uI(Stage primaryStage) {
         // Dropdown lista
 
+        Random random = new Random();
+        int clientNumber = random.nextInt(100) + 1;
+
+        String clientName = "client" + clientNumber;
+
+        System.out.println(clientName);
+
         Client client = new Client();
         ComboBox<String> existingTopicsDropdown = new ComboBox<>();
         ComboBox<String> clientTopicsDropdown = new ComboBox<>();
         TextArea textArea = new TextArea();
 
 
-        List<String> existingTopics = client.getExistingTopicsFromServer("client15");
+        List<String> existingTopics = client.getExistingTopicsFromServer(clientName);
 
         for (String topic : existingTopics) {
 
@@ -31,7 +39,7 @@ public class ClientUI {
 
         }
 
-        List<String> clientTopics = client.getClientTopics("client15");
+        List<String> clientTopics = client.getClientTopics(clientName);
 
         for (String topic : clientTopics) {
 
@@ -40,15 +48,14 @@ public class ClientUI {
         }
 
 
-        existingTopicsDropdown.setPromptText("Istniejące topici");
+        existingTopicsDropdown.setPromptText("Wszystkie tematy");
 
-        clientTopicsDropdown.setPromptText("Topici clienta");
+        clientTopicsDropdown.setPromptText("Tematy zasubskrybowane");
 
-        Button button1 = new Button("xxx");
-        Button showTopicNews = new Button("showTopicNews");
+        Button showTopicNews = new Button("Pokaż newsy z wybranego tematu");
 
-        Button subscribe = new Button("subscribe");
-        Button unsubscribe = new Button("unsubscribe");
+        Button subscribe = new Button("Subskrybuj temat");
+        Button unsubscribe = new Button("Odsubskrybuj temat");
 
         textArea.setEditable(false);
 
@@ -59,23 +66,52 @@ public class ClientUI {
 
         textArea.setPrefSize(600, 400);
 
-        gridPane.add(existingTopicsDropdown, 1, 0, 2, 1);
-        gridPane.add(clientTopicsDropdown, 2, 0);
-        gridPane.add(button1, 0, 1);
-        gridPane.add(showTopicNews, 1, 1);
-        gridPane.add(subscribe, 2, 1);
-        gridPane.add(unsubscribe, 3, 1);
+        gridPane.add(existingTopicsDropdown, 0, 0, 1, 1);
+        gridPane.add(subscribe, 1, 0, 1, 1);
 
-        gridPane.add(textArea, 0, 2, 2, 1);
+        gridPane.add(textArea, 0, 1, 3, 1);
 
+
+        gridPane.add(clientTopicsDropdown, 0, 2, 1, 1);
+        gridPane.add(showTopicNews, 1, 2, 1, 1);
+        gridPane.add(unsubscribe, 2, 2, 1, 1);
+
+
+
+        existingTopicsDropdown.setOnMouseClicked(dragEvent -> {
+
+            List<String> existingTopicss = client.getExistingTopicsFromServer(clientName);
+
+            existingTopicsDropdown.getItems().clear();
+
+            for (String topic : existingTopicss) {
+
+                existingTopicsDropdown.getItems().addAll(topic);
+
+            }
+        });
+
+        clientTopicsDropdown.setOnMouseClicked(dragEvent ->{
+
+
+            List<String> clientTopicss = client.getClientTopics(clientName);
+
+            clientTopicsDropdown.getItems().clear();
+
+            for (String topic : clientTopicss) {
+
+                clientTopicsDropdown.getItems().addAll(topic);
+
+            }
+        });
 
         subscribe.setOnAction(actionEvent -> {
 
-            client.subscribeTopic(existingTopicsDropdown.getValue(), "client15");
+            client.subscribeTopic(existingTopicsDropdown.getValue(), clientName);
 
                 clientTopicsDropdown.getItems().clear();
 
-            List<String> cclientTopics = client.getClientTopics("client15");
+            List<String> cclientTopics = client.getClientTopics(clientName);
 
 
             for (String topic : cclientTopics) {
@@ -83,38 +119,35 @@ public class ClientUI {
                 clientTopicsDropdown.getItems().addAll(topic);
 
             }
+            clientTopicsDropdown.getSelectionModel().select(0);
 
         });
 
         unsubscribe.setOnAction(actionEvent -> {
 
-            client.unSubscribeTopic(clientTopicsDropdown.getValue(),"client15");
+            client.unSubscribeTopic(clientTopicsDropdown.getValue(),clientName);
 
             clientTopicsDropdown.getItems().clear();
 
-            List<String> cclientTopics = client.getClientTopics("client15");
+            List<String> cclientTopics = client.getClientTopics(clientName);
 
             for (String topic : cclientTopics) {
 
                 clientTopicsDropdown.getItems().addAll(topic);
 
             }
-        });
-
-
-
-        button1.setOnAction(event -> {
-
-            textArea.appendText(existingTopicsDropdown.getValue());
-
+            clientTopicsDropdown.getSelectionModel().select(0);
 
         });
+
+
+
 
         showTopicNews.setOnAction(event -> {
 
             textArea.clear();
 
-            List<String> newsResult =  client.getTopicNews(clientTopicsDropdown.getValue(), "client15");
+            List<String> newsResult =  client.getTopicNews(clientTopicsDropdown.getValue(), clientName);
 
             for (String news : newsResult) {
                 textArea.appendText(news + "\n");

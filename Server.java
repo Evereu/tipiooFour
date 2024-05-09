@@ -13,47 +13,13 @@ import java.util.*;
 
 
 public class Server {
-    static Map<String, HashSet<String>> clientTopics = new HashMap<>();
-    static {
+    static Map<String, HashSet<String>> clientTopics = new HashMap<>(); // nazwa klienta i jego tematy
+    static Map<String, List<String>> topicNews = new HashMap<>(); // temat i newsy do niego przypisane
+    //static HashSet<String> existingTopics = new HashSet<>(); // wszystkie tematy
 
-        HashSet<String> topcList = new HashSet<>();
-        topcList.add("Sport");
-        topcList.add("Polityka");
-        clientTopics.put("client15", topcList);
-    }
-
-
-    static Map<String, List<String>> topicNews = new HashMap<>();
-
-    static {
-        // Temat: Polityka
-        List<String> politykaNews = new ArrayList<>();
-        politykaNews.add("Nowy premier zapowiada reformy w edukacji.");
-        politykaNews.add("Projekt ustawy o podatkach w Sejmie.");
-        topicNews.put("Polityka", politykaNews);
-
-        // Temat: Nauka
-        List<String> naukaNews = new ArrayList<>();
-        naukaNews.add("Odkryto nowy gatunek dinozaura w Argentynie.");
-        naukaNews.add("Badania nad leczeniem raka skóry odnoszą sukces.");
-        topicNews.put("Natura", naukaNews);
-
-        // Temat: Sport
-        List<String> sportNews = new ArrayList<>();
-        sportNews.add("Lewandowski zdobył hat-trick w meczu z Realem Madryt.");
-        sportNews.add("Reprezentacja narodowa zajęła drugie miejsce w mistrzostwach świata.");
-        topicNews.put("Sport", sportNews);
-    }
-
-    static List<String> existingTopics = new ArrayList<>(){{
-        add("Sport");
-        add("Polityka");
-        add("Natura");
-    }};
 
     public static void main(String[] args) throws IOException, InterruptedException {
         new Server();
-
     }
 
     Server() throws IOException {
@@ -171,12 +137,25 @@ public class Server {
 
                 if (msg[1].equals("addnewtopic")) {
 
+                    //od razu dodać do topicNews
+
+                    topicNews.put(msg[2], new ArrayList<>());
+
                     System.out.println("dodano nowy topic");
+//
+//                    existingTopics.add(msg[2]);
+//
+//                    for (var a : existingTopics) {
+//                        System.out.println("existingTopics: " + a);
+//                    }
 
-                    existingTopics.add(msg[2]);
+                    for (String entry : topicNews.keySet()) {
 
-                    for (var a : existingTopics) {
-                        System.out.println("existingTopics: " + a);
+
+                            System.out.println("addnewtopicaaa: "+entry);
+
+                        System.out.println();
+
                     }
 
                     sc.close();
@@ -186,17 +165,73 @@ public class Server {
 
                     System.out.println("usunieto topic");
 
-                    existingTopics.remove(msg[2]);
+                    topicNews.remove(msg[2]);
 
-                    for (var a : existingTopics) {
+                    for (var a : topicNews.keySet()) {
                         System.out.println("existingTopics: " + a);
                     }
 
                     sc.close();
                     sc.socket().close();
 
+                } else if (msg[1].equals("getexistingtopics")) {
+
+                    System.out.println("getexistingtopics");
+
+                    StringBuilder stringBuilder = new StringBuilder();
+
+
+                    if(topicNews.isEmpty()){
+
+                        System.out.println("topici puste");
+
+                        sc.write(charset.encode(CharBuffer.wrap("none")));
+
+
+                    }else {
+
+                        for (var topic : topicNews.keySet()) {
+                            stringBuilder.append(topic).append(" ");
+                        }
+                        String listaTopicowString = stringBuilder.toString().trim();
+                        System.out.println("Wysyłam topici");
+
+                        sc.write(charset.encode(CharBuffer.wrap(listaTopicowString)));
+
+                    }
+
+
+
+                    sc.close();
+                    sc.socket().close();
+
+                } else if (msg[1].equals("addnewnews")) {
+
+                    System.out.println("addnewnews");
+
+                    for (Map.Entry<String, List<String>> entry : topicNews.entrySet()) {
+
+                        if (entry.getKey().equals(msg[2])) {
+                            List<String> topics = entry.getValue();
+
+                            topics.add(msg[3]);
+
+                        }
+                    }
+                    for (Map.Entry<String, List<String>> entry : topicNews.entrySet()) {
+                        List<String> topics = entry.getValue();
+                        for (String topic : topics) {
+                            System.out.println("addnewnews: "+topic);
+                        }
+                        System.out.println();
+
+                    }
+
+                    sc.close();
+                    sc.socket().close();
                 }
             }
+
 
 
 
@@ -213,39 +248,48 @@ public class Server {
                 //TODO zastanowić się czy dodawanie nowego klienta można jakoś opakować by skrócić requesty
 
 
-                List<String> clientTopicList = new ArrayList<>();
+                HashSet<String> clientTopicList = new HashSet<String>();
 
                 //TODO DODAWANIE NOWEGO KILENTA, ODKOMENTOWAĆ PÓŹNIEJ
 
-//                if(!clientTopics.containsKey(msg[1])){
-//                    clientTopics.put(msg[1], clientTopicList);
-//                    System.out.println("dodano nowego klienta");
-//                }
-//
-//                for (String entry : clientTopics.keySet()) {
-//                    System.out.println("Aktualni klienci: " + entry);
-//                }
+                if(!clientTopics.containsKey(msg[1])){
+                    clientTopics.put(msg[1], clientTopicList);
+                    System.out.println("dodano nowego klienta");
+                }
+
+                for (String entry : clientTopics.keySet()) {
+                    System.out.println("Aktualni klienci: " + entry);
+                }
 
                 if(msg[2].equals("getexistingtopics")){
 
                     StringBuilder stringBuilder = new StringBuilder();
 
-                    for (String topic : existingTopics) {
-                        stringBuilder.append(topic).append(" ");
+
+                    if(topicNews.isEmpty()){
+                        System.out.println("topici puste");
+
+                        sc.write(charset.encode(CharBuffer.wrap("none")));
+                    }else {
+                        for (var topic : topicNews.keySet()) {
+                            stringBuilder.append(topic).append(" ");
+                        }
+                        String listaTopicowString = stringBuilder.toString().trim();
+
+                        System.out.println("Wysyłam topici");
+
+                        sc.write(charset.encode(CharBuffer.wrap(listaTopicowString)));
                     }
-                    String listaTopicowString = stringBuilder.toString().trim();
 
-                    System.out.println("Wysyłam topici");
 
-                    sc.write(charset.encode(CharBuffer.wrap(listaTopicowString)));
+
 
                     sc.close();
                     sc.socket().close();
 
                 } else if (msg[2].equals("subscribetopic")) {
 
-
-                    if(existingTopics.contains(msg[3]) && clientTopics.containsKey(msg[1])){
+                    if(topicNews.keySet().contains(msg[3]) && clientTopics.containsKey(msg[1])){
 
                         clientTopics.get(msg[1]).add(msg[3]);
 
@@ -315,6 +359,17 @@ public class Server {
 
                     StringBuilder stringBuilder = new StringBuilder();
 
+//
+//                    for (Map.Entry<String, List<String>> entry : topicNews.entrySet()) {
+//
+//                        List<String> topics = entry.getValue();
+//                        for (String topic : topics) {
+//                            System.out.println("ffffffffff"+topic);
+//                        }
+//                        System.out.println();
+//                    }
+
+
                     if(clientTopics.containsKey(msg[1])) {
                         for (String news : topicNews.get(msg[3])) {
                             stringBuilder.append(news).append(" ");
@@ -338,7 +393,7 @@ public class Server {
 
                     StringBuilder stringBuilder = new StringBuilder();
 
-                    if(clientTopics.containsKey(msg[1])) {
+                    if(clientTopics.containsKey(msg[1]) && clientTopics.get(msg[1]) != null) {
                         for (String topic : clientTopics.get(msg[1])) {
                             stringBuilder.append(topic).append(" ");
                             System.out.println("- " + topic);
