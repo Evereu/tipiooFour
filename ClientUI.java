@@ -16,7 +16,7 @@ public class ClientUI {
 
 
     public void uI(Stage primaryStage) {
-        // Dropdown lista
+
 
         Random random = new Random();
         int clientNumber = random.nextInt(100) + 1;
@@ -29,7 +29,7 @@ public class ClientUI {
         ComboBox<String> existingTopicsDropdown = new ComboBox<>();
         ComboBox<String> clientTopicsDropdown = new ComboBox<>();
         TextArea textArea = new TextArea();
-
+        textArea.setWrapText(true);
 
         List<String> existingTopics = client.getExistingTopicsFromServer(clientName);
 
@@ -58,6 +58,7 @@ public class ClientUI {
         Button unsubscribe = new Button("Odsubskrybuj temat");
 
         textArea.setEditable(false);
+
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 20, 20, 20));
@@ -150,7 +151,7 @@ public class ClientUI {
             List<String> newsResult =  client.getTopicNews(clientTopicsDropdown.getValue(), clientName);
 
             for (String news : newsResult) {
-                textArea.appendText(news + "\n");
+                textArea.appendText(news + " ");
             }
         });
 
