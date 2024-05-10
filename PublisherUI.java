@@ -24,7 +24,7 @@ public class PublisherUI {
         TextField inputNewTopic = new TextField("");
         inputNewTopic.setPromptText("Wprowadź nowy topic");
         TextArea textArea = new TextArea();
-
+        textArea.setWrapText(true);
 
         List<String> existingTopics = publisher.getExistingTopicsFromServer();
 
